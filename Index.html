@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>小日常打卡</title>
+    <style>
+        /* 柔和的莫蘭迪與韓系簡約色調 */
+        :root {
+            --bg-color: #F7F5F0;
+            --card-bg: #FFFFFF;
+            --primary-color: #C2B4A6;
+            --text-main: #5C5853;
+            --text-light: #8E8A85;
+            --shadow: 0 4px 15px rgba(0,0,0,0.03);
+        }
+
+        body {
+            font-family: 'Helvetica Neue', Arial, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 400px;
+            background-color: var(--card-bg);
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: var(--shadow);
+        }
+
+        h1 {
+            text-align: center;
+            font-size: 22px;
+            font-weight: 600;
+            margin-bottom: 5px;
+            color: var(--text-main);
+        }
+
+        .date-display {
+            text-align: center;
+            font-size: 14px;
+            color: var(--text-light);
+            margin-bottom: 25px;
+        }
+
+        /* 打卡區塊 */
+        .habits-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+            margin-bottom: 30px;
+        }
+
+        .habit-card {
+            background-color: var(--bg-color);
+            border: 2px solid transparent;
+            border-radius: 16px;
+            padding: 20px 10px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            user-select: none;
+        }
+
+        .habit-card:hover {
+            transform: translateY(-2px);
+        }
+
+        .habit-card.completed {
+            background-color: var(--primary-color);
+            color: white;
+            box-shadow: 0 4px 10px rgba(194, 180, 166, 0.4);
+        }
+
+        .habit-icon {
+            font-size: 28px;
+            margin-bottom: 8px;
+            display: block;
+        }
+
+        .habit-name {
+            font-size: 14px;
+            font-weight: 500;
+        }
+
+        /* 紀錄回顧區塊 */
+        .history-section {
+            border-top: 1px dashed #E0DCD5;
+            padding-top: 20px;
+        }
+
+        .history-title {
+            font-size: 16px;
+            margin-bottom: 15px;
+            color: var(--text-main);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .history-list {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+            max-height: 200px;
+            overflow-y: auto;
+        }
+
+        .history-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px;
+            background-color: var(--bg-color);
+            border-radius: 12px;
+            margin-bottom: 10px;
+            font-size: 14px;
+        }
+
+        .history-date {
+            font-weight: 500;
+            color: var(--text-main);
+        }
+
+        .history-habits {
+            display: flex;
+            gap: 5px;
+        }
+
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h1>✨ 今日習慣打卡</h1>
+        <div class="date-display" id="todayDate"></div>
+
+        <div class="habits-grid" id="habitsGrid">
+            </div>
+
+        <div class="history-section">
+            <div class="history-title">📅 過往打卡紀錄</div>
+            <ul class="history-list" id="historyList">
+                </ul>
+        </div>
+    </div>
+
+    <script>
+        // 設定你要追蹤的習慣與對應的小插圖 (Emoji)
+        const habits = [
+            { id: 'water', name: '喝足水分', icon: '💧' },
+            { id: 'read', name: '閱讀十分鐘', icon: '📖' },
+            { id: 'exercise', name: '活動伸展', icon: '🧘‍♀️' },
+            { id: 'sleep', name: '準時早睡', icon: '🌙' }
+        ];
+
+        // 取得今天的日期字串 (格式: YYYY-MM-DD)
+        const getTodayString = () => {
+            const today = new Date();
+            // 轉換為本地時間格式避免時區誤差
+            return today.toLocaleDateString('zh-TW', { year: 'numeric', month: '2-digit', day: '2-digit' }).replace(/\//g, '-');
+        };
+
+        const todayKey = getTodayString();
+        
+        // 顯示今天日期
+        document.getElementById('todayDate').innerText = new Date().toLocaleDateString('zh-TW', { month: 'long', day: 'numeric', weekday: 'long' });
+
+        // 從 localStorage 讀取所有資料，若無則建立空物件
+        let checkins = JSON.parse(localStorage.getItem('habitCheckins')) || {};
+        
+        // 初始化今天的資料
+        if (!checkins[todayKey]) {
+            checkins[todayKey] = [];
+        }
+
+        const habitsGrid = document.getElementById('habitsGrid');
+        const historyList = document.getElementById('historyList');
+
+        // 渲染上方的打卡按鈕
+        function renderHabits() {
+            habitsGrid.innerHTML = '';
+            habits.forEach(habit => {
+                const isCompleted = checkins[todayKey].includes(habit.id);
+                const card = document.createElement('div');
+                card.className = `habit-card ${isCompleted ? 'completed' : ''}`;
+                card.onclick = () => toggleCheckin(habit.id);
+                
+                card.innerHTML = `
+                    <span class="habit-icon">${habit.icon}</span>
+                    <span class="habit-name">${habit.name}</span>
+                `;
+                habitsGrid.appendChild(card);
+            });
+        }
+
+        // 點擊打卡/取消打卡的邏輯
+        function toggleCheckin(habitId) {
+            const index = checkins[todayKey].indexOf(habitId);
+            if (index > -1) {
+                // 已打卡則取消
+                checkins[todayKey].splice(index, 1);
+            } else {
+                // 未打卡則加入
+                checkins[todayKey].push(habitId);
+            }
+            saveData();
+            renderHabits();
+            renderHistory();
+        }
+
+        // 儲存資料到瀏覽器
+        function saveData() {
+            localStorage.setItem('habitCheckins', JSON.stringify(checkins));
+        }
+
+        // 渲染下方的過往紀錄
+        function renderHistory() {
+            historyList.innerHTML = '';
+            // 將日期排序 (最新的在最上面)
+            const sortedDates = Object.keys(checkins).sort((a, b) => new Date(b) - new Date(a));
+
+            sortedDates.forEach(date => {
+                // 如果那天沒有任何打卡紀錄，就不顯示
+                if (checkins[date].length === 0 && date !== todayKey) return;
+
+                // 找出那天打卡的習慣 icon
+                const completedIcons = checkins[date].map(id => {
+                    const habit = habits.find(h => h.id === id);
+                    return habit ? habit.icon : '';
+                }).join(' ');
+
+                const li = document.createElement('li');
+                li.className = 'history-item';
+                
+                // 若為今天，加上標記
+                const dateDisplay = date === todayKey ? `${date} (今日)` : date;
+
+                li.innerHTML = `
+                    <span class="history-date">${dateDisplay}</span>
+                    <span class="history-habits">${completedIcons || '無紀錄'}</span>
+                `;
+                historyList.appendChild(li);
+            });
+        }
+
+        // 網頁載入時執行初始化渲染
+        renderHabits();
+        renderHistory();
+    </script>
+</body>
+</html>
