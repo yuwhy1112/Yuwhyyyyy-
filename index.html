@@ -4,19 +4,23 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>小日常打卡</title>
+    <link rel="icon" type="image/png" href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAAACXBIWXMAAAsTAAALEwEAmpwYAAABy0lEQVRYR+1WvU4CQRS+OxtvYKw0hsaO6fAAnwAbfAIbO5M3MDH2VvIGXqCxYmOiNiaGiW8gYWyI4Z1zZ7kzO8uCInArucll5w/f98+c7OwO4D+P0XoVvN9vE8Ah8A7E+VbE40D78HreA+eAAHACnAGf3V2E79B5wD2gA0S5Yf77Epgp1BToM8b0S8O5p99Y5yWjBwW6Ephv4A3N+D4yPgrQYQj7wXNoY5zXfM7U6TswYp4P9DshE4H96A10Yp4YvV1oZpzXfM5Uby9At8Z5beR1XnZ58wXofW8P4Y7E4XvofY0b57m53l6AxuG6H8K58bXbN89mY6+fQYAbh0fAOn44wLzG7yO81o7v4jXb5v0A57V2fBeu2TfPCwY6vYBOzYNu7nO53PCH5bI055lXgOf88wF0atf5nKkrwFfG7w7Y0+8W/9P/h/b0/P/hffM/99/X+dK1727I33H+jPPrX9E/oHP+N9D4P6mE4L/8j4Bv579Sgf8h8I2X6O9SgVvP9zB9G3/j5/y0K5X55SbyN3wHqMDv6nN+GqjE9eFz5oP4bM8hR/3XqMDt6nN+FvD9C5mR4G8h6Oa9AAAAAElFTkSuQmCC">
     <style>
-        /* 柔和的莫蘭迪與韓系簡約色調 */
         :root {
-            --bg-color: #F7F5F0;
+            --bg-color: #F8F6F1;
             --card-bg: #FFFFFF;
-            --primary-color: #C2B4A6;
+            /* Gemini-like colors */
+            --g1: #4B90E2; /* Blue */
+            --g2: #FF6B6B; /* Pink */
+            --g3: #FFE082; /* Yellow */
             --text-main: #5C5853;
             --text-light: #8E8A85;
             --shadow: 0 4px 15px rgba(0,0,0,0.03);
+            --border: #E8E5DF;
         }
 
         body {
-            font-family: 'Helvetica Neue', Arial, sans-serif;
+            font-family: 'Helvetica Neue', Arial, 'Microsoft JhengHei', sans-serif;
             background-color: var(--bg-color);
             color: var(--text-main);
             margin: 0;
@@ -27,29 +31,81 @@
 
         .container {
             width: 100%;
-            max-width: 400px;
+            max-width: 420px;
             background-color: var(--card-bg);
-            border-radius: 20px;
-            padding: 30px;
+            border-radius: 24px;
+            padding: 25px;
             box-shadow: var(--shadow);
+            position: relative;
+        }
+
+        /* Requirement 3: CSS Logo and Title Section */
+        header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 20px;
+        }
+
+        .logo-group {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        /* Gemini-like gradient diamond logo */
+        .gemini-logo {
+            width: 32px;
+            height: 32px;
+            background: linear-gradient(135deg, var(--g1), var(--g2), var(--g3));
+            clip-path: polygon(50% 0%, 100% 50%, 50% 100%, 0% 50%);
+            border-radius: 6px;
         }
 
         h1 {
-            text-align: center;
-            font-size: 22px;
+            font-size: 20px;
             font-weight: 600;
-            margin-bottom: 5px;
+            margin: 0;
             color: var(--text-main);
         }
 
-        .date-display {
-            text-align: center;
-            font-size: 14px;
-            color: var(--text-light);
+        .settings-btn {
+            background: none;
+            border: none;
+            cursor: pointer;
+            font-size: 18px;
+            opacity: 0.6;
+            transition: opacity 0.2s;
+        }
+        .settings-btn:hover { opacity: 1; }
+
+        /* Requirement 2: Date Selector (Backdating) */
+        .date-section {
+            display: flex;
+            justify-content: center;
+            align-items: center;
             margin-bottom: 25px;
+            background-color: #f1efea;
+            border-radius: 12px;
+            padding: 8px 15px;
         }
 
-        /* 打卡區塊 */
+        #datePicker {
+            font-family: inherit;
+            border: none;
+            background: none;
+            font-size: 16px;
+            color: var(--text-main);
+            outline: none;
+            cursor: pointer;
+            text-align: center;
+        }
+        #datePicker::-webkit-calendar-picker-indicator {
+            opacity: 0.5;
+            margin-left: 10px;
+        }
+
+        /* Habis Grid */
         .habits-grid {
             display: grid;
             grid-template-columns: repeat(2, 1fr);
@@ -58,141 +114,178 @@
         }
 
         .habit-card {
-            background-color: var(--bg-color);
-            border: 2px solid transparent;
-            border-radius: 16px;
-            padding: 20px 10px;
+            background-color: #fff;
+            border: 2px solid #EEE9E0;
+            border-radius: 18px;
+            padding: 25px 10px;
             text-align: center;
             cursor: pointer;
             transition: all 0.3s ease;
             user-select: none;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 10px;
         }
 
-        .habit-card:hover {
-            transform: translateY(-2px);
-        }
+        .habit-card:hover { transform: translateY(-3px); box-shadow: 0 4px 10px rgba(0,0,0,0.05); }
 
         .habit-card.completed {
-            background-color: var(--primary-color);
-            color: white;
-            box-shadow: 0 4px 10px rgba(194, 180, 166, 0.4);
+            border-color: #a8dadc;
+            background: linear-gradient(135deg, #f1fafa, #d8f3dc);
         }
 
-        .habit-icon {
-            font-size: 28px;
-            margin-bottom: 8px;
-            display: block;
-        }
+        .habit-icon { font-size: 32px; }
+        .habit-name { font-size: 15px; font-weight: 500; }
 
-        .habit-name {
-            font-size: 14px;
-            font-weight: 500;
+        /* Check mark overlay when completed */
+        .check-overlay {
+            position: absolute;
+            top: 10px; right: 10px;
+            font-size: 20px; color: #2a9d8f;
+            display: none;
         }
+        .habit-card.completed .check-overlay { display: block; }
+        .habit-card { position: relative; }
 
-        /* 紀錄回顧區塊 */
-        .history-section {
-            border-top: 1px dashed #E0DCD5;
-            padding-top: 20px;
-        }
+        /* History */
+        .history-section { border-top: 1px dashed var(--border); padding-top: 20px; }
+        .history-title { font-size: 16px; margin-bottom: 15px; color: var(--text-light); font-weight: 500; }
+        .history-list { list-style: none; padding: 0; margin: 0; max-height: 180px; overflow-y: auto; }
+        .history-item { display: flex; justify-content: space-between; align-items: center; padding: 12px; background-color: #fdfdfc; border-radius: 12px; margin-bottom: 8px; font-size: 14px; border: 1px solid #F3F1ED; }
+        .history-date { font-weight: 500; color: var(--text-main); }
+        .history-habits { font-size: 18px; }
 
-        .history-title {
-            font-size: 16px;
-            margin-bottom: 15px;
-            color: var(--text-main);
-            display: flex;
-            align-items: center;
-            gap: 8px;
+        /* Modal (Settings/Edit) Styling */
+        .modal {
+            display: none;
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background-color: rgba(0,0,0,0.4);
+            justify-content: center; align-items: center;
+            z-index: 1000;
         }
+        .modal-content {
+            background-color: white; border-radius: 20px; width: 90%; max-width: 380px;
+            padding: 25px; box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            position: relative;
+        }
+        .modal-header { font-size: 18px; font-weight: 600; margin-bottom: 20px; text-align: center; }
+        .close-modal { position: absolute; top: 15px; right: 15px; font-size: 20px; background: none; border: none; cursor: pointer; opacity: 0.4; }
 
-        .history-list {
-            list-style: none;
-            padding: 0;
-            margin: 0;
-            max-height: 200px;
-            overflow-y: auto;
+        /* Requirement 1: Settings Form */
+        .edit-habit-item {
+            display: flex; gap: 10px; margin-bottom: 12px; align-items: center;
+            padding-bottom: 12px; border-bottom: 1px solid #F0EDE8;
         }
+        .edit-habit-item input {
+            font-family: inherit; font-size: 14px; border: 1px solid #EBE7E0;
+            border-radius: 8px; padding: 8px; color: var(--text-main);
+            background-color: #fdfcf9;
+        }
+        .edit-habit-item .edit-icon { width: 45px; text-align: center; font-size: 20px; }
+        .edit-habit-item .edit-name { flex: 1; }
 
-        .history-item {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 12px;
-            background-color: var(--bg-color);
-            border-radius: 12px;
-            margin-bottom: 10px;
-            font-size: 14px;
+        .save-btn {
+            width: 100%; background-color: var(--text-main); color: white;
+            border: none; border-radius: 10px; padding: 12px; font-size: 16px; font-weight: 500;
+            cursor: pointer; margin-top: 15px; transition: background 0.2s;
         }
-
-        .history-date {
-            font-weight: 500;
-            color: var(--text-main);
-        }
-
-        .history-habits {
-            display: flex;
-            gap: 5px;
-        }
+        .save-btn:hover { background-color: #3e3b38; }
 
     </style>
 </head>
 <body>
 
     <div class="container">
-        <h1>✨ 今日習慣打卡</h1>
-        <div class="date-display" id="todayDate"></div>
+        <header>
+            <div class="logo-group">
+                <div class="gemini-logo"></div>
+                <h1>小日常打卡</h1>
+            </div>
+            <button class="settings-btn" id="openSettings" title="設定習慣名稱">⚙️</button>
+        </header>
+
+        <div class="date-section">
+            <input type="date" id="datePicker">
+        </div>
 
         <div class="habits-grid" id="habitsGrid">
             </div>
 
         <div class="history-section">
-            <div class="history-title">📅 過往打卡紀錄</div>
+            <div class="history-title">📅 打卡小歷史</div>
             <ul class="history-list" id="historyList">
                 </ul>
         </div>
     </div>
 
+    <div class="modal" id="settingsModal">
+        <div class="modal-content">
+            <button class="close-modal" id="closeSettings">✕</button>
+            <div class="modal-header">自訂你的習慣 ✨</div>
+            <div id="settingsForm">
+                </div>
+            <button class="save-btn" id="saveHabitSettings">儲存修改</button>
+        </div>
+    </div>
+
     <script>
-        // 設定你要追蹤的習慣與對應的小插圖 (Emoji)
-        const habits = [
-            { id: 'water', name: '喝水變漂亮', icon: '💧' },
-            { id: 'medicine', name: '保健食品補充', icon: '💊' },
-            { id: 'exercise', name: '30分鐘運動', icon: '🏋🏻‍♀️' },
-            { id: 'sleep', name: '早睡早起身體好', icon: '🌙' }
+        // Default template, used only on first load
+        const defaultHabits = [
+            { id: 'h1', name: '喝足水分', icon: '💧' },
+            { id: 'h2', name: '閱讀十分鐘', icon: '📖' },
+            { id: 'h3', name: '活動伸展', icon: '🧘‍♀️' },
+            { id: 'h4', name: '準時早睡', icon: '🌙' }
         ];
 
-        // 取得今天的日期字串 (格式: YYYY-MM-DD)
-        const getTodayString = () => {
-            const today = new Date();
-            // 轉換為本地時間格式避免時區誤差
-            return today.toLocaleDateString('zh-TW', { year: 'numeric', month: '2-digit', day: '2-digit' }).replace(/\//g, '-');
+        // --- Core Data Initialization ---
+        
+        // Load customized habits from local storage, or use defaults
+        let myHabits = JSON.parse(localStorage.getItem('myHabitsConfig')) || defaultHabits;
+        
+        // Load check-in records
+        let allCheckins = JSON.parse(localStorage.getItem('habitCheckins')) || {};
+
+        // Helper to format Date object to 'YYYY-MM-DD' without timezone issues
+        const formatDate = (dateObj) => {
+            const y = dateObj.getFullYear();
+            const m = String(dateObj.getMonth() + 1).padStart(2, '0');
+            const d = String(dateObj.getDate()).padStart(2, '0');
+            return `${y}-${m}-${d}`;
         };
 
-        const todayKey = getTodayString();
-        
-        // 顯示今天日期
-        document.getElementById('todayDate').innerText = new Date().toLocaleDateString('zh-TW', { month: 'long', day: 'numeric', weekday: 'long' });
-
-        // 從 localStorage 讀取所有資料，若無則建立空物件
-        let checkins = JSON.parse(localStorage.getItem('habitCheckins')) || {};
-        
-        // 初始化今天的資料
-        if (!checkins[todayKey]) {
-            checkins[todayKey] = [];
-        }
-
+        const dateInput = document.getElementById('datePicker');
         const habitsGrid = document.getElementById('habitsGrid');
         const historyList = document.getElementById('historyList');
 
-        // 渲染上方的打卡按鈕
-        function renderHabits() {
+        // Set date picker to TODAY initially
+        const todayStr = formatDate(new Date());
+        dateInput.value = todayStr;
+
+        // --- Functions ---
+
+        // 1. Get current date from date input (e.g., 'YYYY-MM-DD')
+        function getSelectedDateKey() {
+            return dateInput.value;
+        }
+
+        // 2. Main renderer: Generates the check-in cards for the selected date
+        function renderHabitGrid() {
             habitsGrid.innerHTML = '';
-            habits.forEach(habit => {
-                const isCompleted = checkins[todayKey].includes(habit.id);
+            const selectedDateKey = getSelectedDateKey();
+            
+            // Current day records, if none exist, initialize empty array
+            if (!allCheckins[selectedDateKey]) { allCheckins[selectedDateKey] = []; }
+            const dayRecords = allCheckins[selectedDateKey];
+
+            myHabits.forEach(habit => {
+                const isCompleted = dayRecords.includes(habit.id);
                 const card = document.createElement('div');
                 card.className = `habit-card ${isCompleted ? 'completed' : ''}`;
                 card.onclick = () => toggleCheckin(habit.id);
                 
                 card.innerHTML = `
+                    <span class="check-overlay">✅</span>
                     <span class="habit-icon">${habit.icon}</span>
                     <span class="habit-name">${habit.name}</span>
                 `;
@@ -200,59 +293,109 @@
             });
         }
 
-        // 點擊打卡/取消打卡的邏輯
+        // 3. Toggle check-in logic
         function toggleCheckin(habitId) {
-            const index = checkins[todayKey].indexOf(habitId);
+            const selectedDateKey = getSelectedDateKey();
+            const index = allCheckins[selectedDateKey].indexOf(habitId);
+
             if (index > -1) {
-                // 已打卡則取消
-                checkins[todayKey].splice(index, 1);
+                // Cancel check-in
+                allCheckins[selectedDateKey].splice(index, 1);
             } else {
-                // 未打卡則加入
-                checkins[todayKey].push(habitId);
+                // Perform check-in
+                allCheckins[selectedDateKey].push(habitId);
             }
             saveData();
-            renderHabits();
+            renderHabitGrid();
             renderHistory();
         }
 
-        // 儲存資料到瀏覽器
-        function saveData() {
-            localStorage.setItem('habitCheckins', JSON.stringify(checkins));
-        }
-
-        // 渲染下方的過往紀錄
+        // 4. Update the history list section
         function renderHistory() {
             historyList.innerHTML = '';
-            // 將日期排序 (最新的在最上面)
-            const sortedDates = Object.keys(checkins).sort((a, b) => new Date(b) - new Date(a));
+            // Sort dates descending (newest on top)
+            const sortedDates = Object.keys(allCheckins).sort((a, b) => new Date(b) - new Date(a));
 
             sortedDates.forEach(date => {
-                // 如果那天沒有任何打卡紀錄，就不顯示
-                if (checkins[date].length === 0 && date !== todayKey) return;
+                const checkedHabitIds = allCheckins[date];
+                if (checkedHabitIds.length === 0) return; // Skip days with no records
 
-                // 找出那天打卡的習慣 icon
-                const completedIcons = checkins[date].map(id => {
-                    const habit = habits.find(h => h.id === id);
-                    return habit ? habit.icon : '';
+                // Map IDs to current custom Icons
+                const completedIcons = checkedHabitIds.map(id => {
+                    const habit = myHabits.find(h => h.id === id);
+                    return habit ? habit.icon : ''; // If habit was deleted, shows empty
                 }).join(' ');
 
                 const li = document.createElement('li');
                 li.className = 'history-item';
-                
-                // 若為今天，加上標記
-                const dateDisplay = date === todayKey ? `${date} (今日)` : date;
-
                 li.innerHTML = `
-                    <span class="history-date">${dateDisplay}</span>
-                    <span class="history-habits">${completedIcons || '無紀錄'}</span>
+                    <span class="history-date">${date}</span>
+                    <span class="history-habits">${completedIcons}</span>
                 `;
                 historyList.appendChild(li);
             });
         }
 
-        // 網頁載入時執行初始化渲染
-        renderHabits();
+        // 5. Save all data to localStorage
+        function saveData() {
+            localStorage.setItem('myHabitsConfig', JSON.stringify(myHabits));
+            localStorage.setItem('habitCheckins', JSON.stringify(allCheckins));
+        }
+
+        // --- Settings Modal Logic (Requirement 1) ---
+
+        const modal = document.getElementById('settingsModal');
+        const settingsForm = document.getElementById('settingsForm');
+
+        function openModal() {
+            modal.style.display = 'flex';
+            settingsForm.innerHTML = '';
+            // Generate input fields for current habits
+            myHabits.forEach(habit => {
+                const item = document.createElement('div');
+                item.className = 'edit-habit-item';
+                item.innerHTML = `
+                    <input type="text" class="edit-icon" id="icon-${habit.id}" value="${habit.icon}" maxlength="2" placeholder="圖示">
+                    <input type="text" class="edit-name" id="name-${habit.id}" value="${habit.name}" placeholder="習慣名稱">
+                `;
+                settingsForm.appendChild(item);
+            });
+        }
+
+        function closeModal() {
+            modal.style.display = 'none';
+        }
+
+        function saveSettings() {
+            // Read values from modal inputs and update data structure
+            myHabits.forEach(habit => {
+                const newIcon = document.getElementById(`icon-${habit.id}`).value;
+                const newName = document.getElementById(`name-${habit.id}`).value;
+                habit.icon = newIcon || habit.icon; // Prevent empty icons
+                habit.name = newName || habit.name; // Prevent empty names
+            });
+            saveData();
+            closeModal();
+            renderHabitGrid(); // Apply changes immediately
+            renderHistory();
+        }
+
+        // --- Event Listeners ---
+
+        // Listen for date changes (Requirement 2: Backdating)
+        dateInput.addEventListener('change', renderHabitGrid);
+
+        document.getElementById('openSettings').onclick = openModal;
+        document.getElementById('closeSettings').onclick = closeModal;
+        document.getElementById('saveHabitSettings').onclick = saveSettings;
+        
+        // Close modal when clicking background
+        window.onclick = (event) => { if (event.target == modal) { closeModal(); } }
+
+        // --- Initialization ---
+        renderHabitGrid();
         renderHistory();
+
     </script>
 </body>
 </html>
